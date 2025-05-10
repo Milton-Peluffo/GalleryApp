@@ -1,0 +1,20 @@
+.image-preview {
+  margin: 16px;
+  text-align: center;
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 8px;
+
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .preview-label {
+    display: block;
+    margin-top: 8px;
+    font-size: 14px;
+    color: #666;
+  }
+}
