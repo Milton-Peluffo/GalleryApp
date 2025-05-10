@@ -127,3 +127,8 @@ ion-item {
     }
   }
 }
+
+ion-fab[vertical="bottom"][horizontal="end"] {
+  bottom: 60px !important;
+  margin-right: 10px !important;
+}

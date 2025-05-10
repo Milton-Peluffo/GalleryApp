@@ -8,7 +8,7 @@
 </ion-header>
 
 <ion-content>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-container">
     <ion-item>
       <ion-label position="stacked">Fecha y Hora</ion-label>
       <ion-label>{{ currentDate }}</ion-label>
@@ -19,22 +19,6 @@
       <ion-textarea formControlName="description" rows="3" placeholder="Escribe una descripción..."></ion-textarea>
     </ion-item>
 
-    <div class="floating-buttons">
-      <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-        <ion-fab-button (click)="toggleFab()">
-          <ion-icon name="add"></ion-icon>
-        </ion-fab-button>
-        <ion-fab-list side="top">
-          <ion-fab-button (click)="openCamera()">
-            <ion-icon name="camera"></ion-icon>
-          </ion-fab-button>
-          <ion-fab-button (click)="openGallery()">
-            <ion-icon name="folder"></ion-icon>
-          </ion-fab-button>
-        </ion-fab-list>
-      </ion-fab>
-    </div>
-
     <div class="image-preview">
       @if (imagePreview) {
         <img [src]="imagePreview" alt="Preview">
@@ -42,9 +26,11 @@
       }
     </div>
 
-    <ion-button expand="block" type="submit" [disabled]="form.invalid || !imagePreview">
-      <ion-icon slot="start" name="save"></ion-icon>
-      Guardar Imagen
-    </ion-button>
+    <!-- FAB flotante para guardar imagen -->
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button color="primary" [disabled]="form.invalid || !imagePreview" (click)="onSubmit()">
+        <ion-icon name="save"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
   </form>
 </ion-content>
