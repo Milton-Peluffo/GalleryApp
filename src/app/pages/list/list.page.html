@@ -16,11 +16,18 @@
   <ion-grid>
     <ion-row>
       <ion-col size="4" *ngFor="let item of galleryItems">
-        <ion-card (click)="viewImage(item.imageUrl, item.description, item.timestamp)">
-          <img [src]="item.imageUrl">
-          <ion-card-content>
-            <ion-card-title>{{ item.description }}</ion-card-title>
-            <p>{{ item.timestamp }}</p>
+        <ion-card (click)="viewImage(item.imageUrl, item.description, item.timestamp)" class="gallery-card">
+          <div class="gallery-image-container">
+            <img [src]="item.imageUrl" class="gallery-image">
+          </div>
+          <ion-card-content class="gallery-card-content">
+            <div class="gallery-info">
+              <div class="description">{{ item.description }}</div>
+              <div class="date-time">
+                <div class="date">{{ item.timestamp | date:'mediumDate' }}</div>
+                <div class="time">{{ item.timestamp | date:'shortTime' }}</div>
+              </div>
+            </div>
           </ion-card-content>
         </ion-card>
       </ion-col>
