@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="closeModal()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="image-container">
+    <img [src]="imageUrl" alt="Imagen">
+    <div class="image-details">
+      <div class="description-label">Descripción</div>
+      <div class="description-text">{{ description }}</div>
+      <div class="date-time">
+        <div class="label">Fecha:</div>
+        <div class="value">{{ timestamp | date:'mediumDate' }}</div>
+      </div>
+      <div class="date-time">
+        <div class="label">Hora:</div>
+        <div class="value">{{ timestamp | date:'shortTime' }}</div>
+      </div>
+    </div>
+  </div>
+</ion-content>

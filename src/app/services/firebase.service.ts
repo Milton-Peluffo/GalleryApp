@@ -1,5 +1,15 @@
 import { Injectable } from '@angular/core';
-import { collection, addDoc, query, getDocs, orderBy } from 'firebase/firestore';
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  getDocs, 
+  query, 
+  orderBy, 
+  serverTimestamp,
+  QuerySnapshot,
+  DocumentData
+} from 'firebase/firestore';
 import { db } from '../firebase';
 
 @Injectable({
@@ -10,10 +20,11 @@ export class FirebaseService {
 
   async saveGalleryItem(description: string, imageUrl: string) {
     try {
+      const timestamp = new Date().toISOString();
       await addDoc(this.galleryCollection, {
         description,
         imageUrl,
-        createdAt: new Date()
+        timestamp
       });
     } catch (error) {
       console.error('Error saving gallery item:', error);
@@ -21,17 +32,12 @@ export class FirebaseService {
     }
   }
 
-  async getGalleryItems(): Promise<any[]> {
+  async getGalleryItems(): Promise<QuerySnapshot<DocumentData>> {
     try {
-      const q = query(this.galleryCollection, orderBy('createdAt', 'desc'));
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      return await getDocs(this.galleryCollection);
     } catch (error) {
       console.error('Error getting gallery items:', error);
-      return [];
+      throw error;
     }
   }
 }

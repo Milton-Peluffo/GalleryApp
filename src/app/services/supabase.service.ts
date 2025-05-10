@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { SupabaseClient, createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SupabaseService {
-  private supabase: SupabaseClient;
+  private supabase: any;
 
   constructor() {
     this.supabase = createClient(
@@ -15,23 +15,44 @@ export class SupabaseService {
     );
   }
 
-  async uploadImage(file: File): Promise<string | null> {
+  async uploadImage(file: string): Promise<string> {
     try {
-      const fileName = `${Date.now()}-${file.name}`;
+      // Convert base64 to blob
+      const blob = await this.dataURLToBlob(file);
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.jpg`;
+
+      // Upload to Supabase
       const { data, error } = await this.supabase.storage
         .from('gallery')
-        .upload(fileName, file);
+        .upload(fileName, blob, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-      if (error) throw error;
+      if (error) {
+        throw new Error('Error uploading image');
+      }
 
-      const { data: publicUrl } = this.supabase.storage
+      // Get public URL
+      const { data: { publicUrl } } = await this.supabase.storage
         .from('gallery')
         .getPublicUrl(fileName);
 
-      return publicUrl.publicUrl;
+      return publicUrl;
     } catch (error) {
-      console.error('Error uploading image:', error);
-      return null;
+      console.error('Error:', error);
+      throw error;
     }
+  }
+
+  private async dataURLToBlob(dataURL: string): Promise<Blob> {
+    const base64Response = dataURL.split(',')[1];
+    const byteCharacters = atob(base64Response);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: 'image/jpeg' });
   }
 }

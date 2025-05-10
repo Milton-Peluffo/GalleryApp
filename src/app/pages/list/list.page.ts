@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FirebaseService } from '../../services/firebase.service';
 import { LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { ModalController } from '@ionic/angular';
+import { ImageDetailPage } from './image-detail/image-detail.page';
 
 @Component({
   standalone: false,
@@ -17,7 +19,8 @@ export class ListPage implements OnInit {
   constructor(
     private firebaseService: FirebaseService,
     private loadingCtrl: LoadingController,
-    private router: Router
+    private router: Router,
+    private modalCtrl: ModalController
   ) {}
 
   async ngOnInit() {
@@ -31,7 +34,11 @@ export class ListPage implements OnInit {
     await loading.present();
 
     try {
-      this.galleryItems = await this.firebaseService.getGalleryItems();
+      const querySnapshot = await this.firebaseService.getGalleryItems();
+      this.galleryItems = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
     } catch (error) {
       console.error('Error loading gallery items:', error);
     } finally {
@@ -47,6 +54,19 @@ export class ListPage implements OnInit {
   closeModal() {
     this.isModalOpen = false;
     this.selectedImage = null;
+  }
+
+  async viewImage(imageUrl: string, description: string, timestamp: string) {
+    const modal = await this.modalCtrl.create({
+      component: ImageDetailPage,
+      componentProps: {
+        imageUrl: imageUrl,
+        description: description,
+        timestamp: timestamp
+      }
+    });
+
+    await modal.present();
   }
 
   navigateToAdd() {
