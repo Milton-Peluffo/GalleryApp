@@ -23,5 +23,10 @@
         <div class="value">{{ timestamp | date:'shortTime' }}</div>
       </div>
     </div>
+    <div class="delete-btn-container">
+      <button ion-button class="delete-btn" (click)="deleteImage()" [disabled]="isDeleting">
+        <ion-icon name="trash-outline"></ion-icon> Eliminar
+      </button>
+    </div>
   </div>
 </ion-content>
