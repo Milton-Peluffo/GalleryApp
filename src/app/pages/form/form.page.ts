@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoadingController, AlertController, ToastController } from '@ionic/angular';
@@ -8,19 +8,24 @@ import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { RouterModule } from '@angular/router';
+import { IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonContent, IonItem, IonLabel, IonTextarea, IonFab, IonFabButton, IonIcon, IonFabList, IonButton } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-form',
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
-  standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, IonicModule, CommonModule, RouterModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    IonicModule
+  ]
 })
 export class FormPage implements OnInit {
   form: FormGroup;
   imagePreview: string | null = null;
   currentDate: string;
+  isFabOpen = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -29,24 +34,24 @@ export class FormPage implements OnInit {
     private alertController: AlertController,
     private toastCtrl: ToastController,
     private supabaseService: SupabaseService,
-    private firebaseService: FirebaseService
+    private firebaseService: FirebaseService,
+    @Inject('camera') private camera: typeof Camera
   ) {
     this.form = this.formBuilder.group({
       description: ['', Validators.required]
     });
-    this.currentDate = new Date().toLocaleString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    this.currentDate = new Date().toISOString();
   }
 
-  async ngOnInit() {}
+  async ngOnInit() {
+    const state = history.state;
+    if (state && state.image) {
+      this.imagePreview = `data:image/jpeg;base64,${state.image}`;
+    }
+  }
 
-  async takePhoto() {
-    const image = await Camera.getPhoto({
+  async openCamera() {
+    const image = await this.camera.getPhoto({
       quality: 90,
       allowEditing: true,
       resultType: CameraResultType.Base64,
@@ -56,8 +61,8 @@ export class FormPage implements OnInit {
     this.imagePreview = `data:image/jpeg;base64,${image.base64String}`;
   }
 
-  async selectPhoto() {
-    const image = await Camera.getPhoto({
+  async openGallery() {
+    const image = await this.camera.getPhoto({
       quality: 90,
       allowEditing: true,
       resultType: CameraResultType.Base64,
@@ -65,6 +70,10 @@ export class FormPage implements OnInit {
     });
 
     this.imagePreview = `data:image/jpeg;base64,${image.base64String}`;
+  }
+
+  toggleFab() {
+    this.isFabOpen = !this.isFabOpen;
   }
 
   async onSubmit() {

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
+import { Camera } from '@capacitor/camera';
 
 import { ListPage } from './list.page';
 import { ImageDetailPage } from './image-detail/image-detail.page';
@@ -22,9 +23,13 @@ const routes: Routes = [
 @NgModule({
   imports: [
     CommonModule,
+    FormsModule,
     IonicModule,
-    RouterModule.forChild(routes),
+    RouterModule.forChild(routes)
   ],
-  declarations: [ListPage]
+  declarations: [ListPage],
+  providers: [
+    { provide: 'camera', useValue: Camera }
+  ]
 })
 export class ListPageModule {}

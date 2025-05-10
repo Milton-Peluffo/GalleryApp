@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule, Routes } from '@angular/router';
 import { FormPage } from './form.page';
+import { Camera } from '@capacitor/camera';
 
 const routes: Routes = [
   {
@@ -20,6 +21,9 @@ const routes: Routes = [
     ReactiveFormsModule,
     RouterModule.forChild(routes),
     FormPage
+  ],
+  providers: [
+    { provide: 'camera', useValue: Camera }
   ]
 })
 export class FormPageModule {}
