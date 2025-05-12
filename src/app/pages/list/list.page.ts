@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { FirebaseService } from '../../services/firebase.service';
 import { LoadingController } from '@ionic/angular';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { ImageDetailPage } from './image-detail/image-detail.page';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
@@ -28,6 +28,17 @@ export class ListPage implements OnInit {
 
   async ngOnInit() {
     await this.loadGalleryItems();
+
+    // Escuchar eventos de navegación para detectar cuando se vuelve a esta página después de subir una imagen
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        // Verificar si venimos de subir una imagen
+        const navigation = this.router.getCurrentNavigation();
+        if (navigation?.extras.state?.['imageUploaded']) {
+          this.loadGalleryItems();
+        }
+      }
+    });
   }
 
   toggleFab() {
@@ -96,6 +107,12 @@ export class ListPage implements OnInit {
     });
 
     await modal.present();
+    
+    // Actualizar la lista cuando se cierre el modal, especialmente si se eliminó una imagen
+    const { data } = await modal.onWillDismiss();
+    if (data?.deleted) {
+      await this.loadGalleryItems();
+    }
   }
 
   navigateToAdd() {

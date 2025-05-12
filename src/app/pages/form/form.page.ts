@@ -104,6 +104,8 @@ export class FormPage implements OnInit {
         imageUrl
       );
 
+      await loading.dismiss();
+      
       const toast = await this.toastCtrl.create({
         message: 'Imagen guardada exitosamente',
         duration: 2000,
@@ -113,7 +115,8 @@ export class FormPage implements OnInit {
 
       this.form.reset();
       this.imagePreview = null;
-      await this.router.navigate(['/list']);
+      // Navegar a la lista indicando que se ha subido una imagen
+      this.router.navigate(['/list'], { state: { imageUploaded: true } });
     } catch (error) {
       console.error('Error:', error);
       const toast = await this.toastCtrl.create({
