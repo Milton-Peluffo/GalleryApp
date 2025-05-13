@@ -33,6 +33,19 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+
+        <!-- Widget Receiver -->
+        <receiver android:name=".ImageWidgetProvider"
+            android:exported="false"
+            android:label="@string/app_name">  <!-- O un label específico para el widget -->
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/image_widget_info" />
+        </receiver>
+
     </application>
 
     <!-- Permissions -->
