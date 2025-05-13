@@ -4,4 +4,8 @@
     <string name="title_activity_main">GalleryApp</string>
     <string name="package_name">io.ionic.starter</string>
     <string name="custom_url_scheme">io.ionic.starter</string>
+
+    <!-- Widget Strings -->
+    <string name="widget_description_text">Muestra imágenes de tu galería</string>
+    <string name="widget_image_description">Imagen de la galería</string>
 </resources>

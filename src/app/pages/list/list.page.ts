@@ -1,10 +1,11 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { FirebaseService } from '../../services/firebase.service';
 import { LoadingController } from '@ionic/angular';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { ImageDetailPage } from './image-detail/image-detail.page';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Preferences } from '@capacitor/preferences';
 
 @Component({
   standalone: false,
@@ -28,6 +29,17 @@ export class ListPage implements OnInit {
 
   async ngOnInit() {
     await this.loadGalleryItems();
+
+    // Escuchar eventos de navegación para detectar cuando se vuelve a esta página después de subir una imagen
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        // Verificar si venimos de subir una imagen
+        const navigation = this.router.getCurrentNavigation();
+        if (navigation?.extras.state?.['imageUploaded']) {
+          this.loadGalleryItems();
+        }
+      }
+    });
   }
 
   toggleFab() {
@@ -58,20 +70,29 @@ export class ListPage implements OnInit {
 
   private async loadGalleryItems() {
     const loading = await this.loadingCtrl.create({
-      message: 'Cargando imágenes...'
+      message: 'Cargando galería...',
+      spinner: 'circles'
     });
     await loading.present();
 
     try {
-      const querySnapshot = await this.firebaseService.getGalleryItems();
-      this.galleryItems = querySnapshot.docs.map(doc => ({
+      const snapshot = await this.firebaseService.getGalleryItems();
+      this.galleryItems = snapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
+        ...(doc.data() as { description: string; imageUrl: string, timestamp: any })
       }));
+      // Ordenar por fecha (timestamp) si existe, más reciente primero
+      this.galleryItems.sort((a, b) => {
+        const dateA = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp);
+        const dateB = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp);
+        return dateB.getTime() - dateA.getTime();
+      });
+      console.log('Gallery items loaded:', this.galleryItems);
+      await this.updateWidgetData();
     } catch (error) {
       console.error('Error loading gallery items:', error);
     } finally {
-      await loading.dismiss();
+      loading.dismiss();
     }
   }
 
@@ -96,9 +117,32 @@ export class ListPage implements OnInit {
     });
 
     await modal.present();
+    
+    // Actualizar la lista cuando se cierre el modal, especialmente si se eliminó una imagen
+    const { data } = await modal.onWillDismiss();
+    if (data?.deleted) {
+      await this.loadGalleryItems();
+    }
   }
 
   navigateToAdd() {
     this.router.navigate(['/form']);
+  }
+
+  async updateWidgetData() {
+    console.log('Attempting to save data for widget...');
+    try {
+      const widgetData = this.galleryItems.map(item => ({
+        imageUrl: item.imageUrl,
+        description: item.description
+      }));
+      await Preferences.set({
+        key: 'gallery_items',
+        value: JSON.stringify(widgetData),
+      });
+      console.log('Gallery data saved for widget:', widgetData);
+    } catch (error) {
+      console.error('Error saving data for widget in Preferences:', error);
+    }
   }
 }
